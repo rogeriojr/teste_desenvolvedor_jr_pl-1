@@ -36,6 +36,7 @@ async def summarize(request: Request):
     try:
         # Tenta extrair o corpo da requisição
         body = await request.json()
+        print(body)
         data = TextData(**body)
     except ValidationError as ve:
         # Erro de validação explícita

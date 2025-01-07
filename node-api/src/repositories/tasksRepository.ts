@@ -21,7 +21,7 @@ export class TasksRepository {
    */
   private saveTasksToFile(): void {
     try {
-      fs.writeFileSync(this.FILE_PATH, JSON.stringify(this.tasks, null, 2), "utf-8");
+      fs.writeFileSync(this.FILE_PATH, JSON.stringify(this.tasks, null, 2), 'utf8');
     } catch (error: unknown) {
       console.error("Erro ao salvar tarefas no arquivo:", (error as Error).message);
     }
@@ -33,18 +33,25 @@ export class TasksRepository {
   private loadTasksFromFile(): void {
     if (fs.existsSync(this.FILE_PATH)) {
       try {
-        const data = fs.readFileSync(this.FILE_PATH, "utf-8");
+        const data = fs.readFileSync(this.FILE_PATH, 'utf8'); // Certifique-se de ler o arquivo como UTF-8
         const parsedData = JSON.parse(data);
 
         if (Array.isArray(parsedData)) {
-          this.tasks = parsedData;
+          this.tasks = parsedData.map(task => ({
+            ...task,
+            text: task.text.normalize('NFC'), // Normaliza o texto para evitar problemas de encoding
+          }));
           this.currentId = this.tasks.length > 0 ? Math.max(...this.tasks.map((t) => t.id)) + 1 : 1;
         } else {
           console.warn("O conteúdo do arquivo não é uma lista válida de tarefas. Inicializando vazio.");
+          this.tasks = [];
         }
       } catch (error: unknown) {
-        console.error("Erro ao carregar tarefas do arquivo. Certifique-se de que o arquivo está no formato JSON válido:", (error as Error).message);
-        this.tasks = []; // Reseta para evitar sobrescrita com dados corrompidos.
+        console.error(
+          "Erro ao carregar tarefas do arquivo. Certifique-se de que o arquivo está no formato JSON válido:",
+          (error as Error).message
+        );
+        this.tasks = [];
       }
     }
   }
@@ -57,7 +64,7 @@ export class TasksRepository {
   createTask(text: string): Task {
     const task: Task = {
       id: this.currentId++,
-      text,
+      text: text.normalize('NFC'), // Normaliza o texto ao criar a tarefa
       summary: null,
     };
     this.tasks.push(task);

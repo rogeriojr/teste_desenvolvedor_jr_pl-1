@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { TasksRepository } from "../repositories/tasksRepository";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 const router = Router();
 const tasksRepository = new TasksRepository();
@@ -13,25 +13,34 @@ router.post("/", async (req: Request, res: Response) => {
     const { text, lang } = req.body;
 
     // Validação de parâmetros obrigatórios
-    if (!text || !lang) {
-      return res.status(400).json({ error: 'Os campos "text" e "lang" são obrigatórios.' });
+    if (!text || typeof text !== "string") {
+      return res.status(400).json({ error: 'O campo "text" é obrigatório e deve ser uma string.' });
     }
 
     // Validação de idioma suportado
-    if (!SUPPORTED_LANGS.includes(lang)) {
-      return res.status(400).json({ error: "Idioma não suportado" });
+    if (!lang || !SUPPORTED_LANGS.includes(lang)) {
+      return res.status(400).json({ error: "Idioma não suportado. Utilize: pt, en ou es." });
     }
 
+    // Normaliza o texto para evitar problemas de encoding
+    const normalizedText = text.normalize("NFC");
+
     // Cria a tarefa
-    const task = tasksRepository.createTask(text);
+    const task = tasksRepository.createTask(normalizedText);
 
     try {
       // Solicita o resumo ao serviço Python
       const pythonServiceUrl = "http://localhost:5000/summarize";
       const response = await axios.post(
         pythonServiceUrl,
-        { text, lang },
-        { timeout: 5000 } // Define um timeout para evitar travamentos
+        {
+          text: normalizedText,
+          lang,
+        },
+        {
+          timeout: 500000,
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+        }
       );
 
       if (!response.data || !response.data.summary) {

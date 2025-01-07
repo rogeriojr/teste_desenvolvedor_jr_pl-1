@@ -5,7 +5,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from '../swagger.json';
 
 const app: Application = express();
-app.use(express.json());
+app.use(express.json({ strict: false }));
 
 // Configuração do Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

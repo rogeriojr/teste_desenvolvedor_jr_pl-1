@@ -13,6 +13,7 @@ Este projeto é uma API Node.js desenvolvida com TypeScript e Express, que permi
     - **index.ts**: Inicia o servidor.
     - **routes/**: Define as rotas da API.
       - **tasksRoutes.ts**: Gerencia as rotas relacionadas a tarefas.
+      - **queryRoutes.ts**: Rotas que utilizam query parameters.
     - **repositories/**: Gerencia as tarefas em memória.
       - **tasksRepository.ts**: Implementa a lógica de armazenamento de tarefas.
 - **python-llm/**: Contém a implementação do serviço Python.
@@ -66,6 +67,11 @@ Este projeto é uma API Node.js desenvolvida com TypeScript e Express, que permi
 - **GET /tasks**: Lista todas as tarefas criadas.
 - **GET /tasks/:id**: Retorna os detalhes de uma tarefa específica.
 - **DELETE /tasks/:id**: Remove uma tarefa pelo ID.
+- **GET /query/create-task**: Cria uma tarefa usando parâmetros de consulta.
+  - **Exemplo de uso:**
+    ```
+    curl -X GET "http://localhost:3005/query/create-task?text=Texto%20de%20exemplo&lang=pt"
+    ```
 
 ### Python
 
@@ -180,15 +186,16 @@ Para facilitar o teste manual dos endpoints, o Swagger foi configurado.
 
 ---
 
-
 ## Forçar refresh das portas e terminais se necessário
 4. Inicie a API Node.js e o serviço Python:
    ```bash
    ./refresh_shells.sh
    ```
+
+---
+
 ## Conclusão
 
 Todos os requisitos foram implementados, testados e validados com sucesso. O projeto está pronto para ser submetido ao repositório pessoal. 🚀
 
 Se precisar de mais ajuda, estou à disposição!
-# teste_desenvolvedor_jr_pl-1
