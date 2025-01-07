@@ -1,0 +1,75 @@
+Verificando dependências...
+Executando testes automatizados...
+Testando rota inicial do Node.js...
+Resposta do Node.js: HTTP 200
+✅ Node.js Root - Passou
+Testando rota inicial do Python...
+Resposta do Python: HTTP 200
+✅ Python Root - Passou
+Testando criação de uma tarefa válida...
+Resposta do Node.js (Criar Tarefa): <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /tasks</pre>
+</body>
+</html>
+
+HTTP 404
+❌ Criar Tarefa - Falhou
+Testando criação de uma tarefa inválida...
+Resposta do Node.js (Criar Tarefa Inválida): <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /tasks</pre>
+</body>
+</html>
+
+HTTP 404
+❌ Criar Tarefa Inválida - Falhou
+Testando obtenção de uma tarefa (ID: )...
+Resposta do Node.js (Obter Tarefa): <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /tasks/</pre>
+</body>
+</html>
+
+HTTP 404
+❌ Obter Tarefa - Falhou
+Testando listagem de tarefas...
+Resposta do Node.js (Listar Tarefas): <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /tasks</pre>
+</body>
+</html>
+
+HTTP 404
+❌ Listar Tarefas - Falhou
+Testando remoção de uma tarefa (ID: )...
+Resposta do Node.js (Remover Tarefa): HTTP 404
+❌ Remover Tarefa - Falhou
+Testando geração de resumo no Python...
+Resposta do Python (Resumo): {"detail":"Erro ao processar o corpo da requisição: 'utf-8' codec can't decode byte 0xf3 in position 15: invalid continuation byte"}
+HTTP 400
+❌ Geração de Resumo (Python) - Falhou
+Testando geração de resumo com erro no Python...
+Resposta do Python (Resumo Inválido): {"detail":[{"type":"missing","loc":["text"],"msg":"Field required","input":{"lang":"pt"},"url":"https://errors.pydantic.dev/2.10/v/missing"}]}
+HTTP 422
+✅ Geração de Resumo Inválido - Passou
