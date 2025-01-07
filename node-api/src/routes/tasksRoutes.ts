@@ -7,15 +7,6 @@ const tasksRepository = new TasksRepository();
 
 const SUPPORTED_LANGS = ["pt", "en", "es"];
 
-// Tipos para o resumo retornado pelo serviço Python
-interface PythonSummaryResponse {
-  summary: string;
-}
-
-interface PythonErrorResponse {
-  detail: string | Array<{ loc: string[]; msg: string; type: string }>;
-}
-
 // POST: Cria uma tarefa e solicita resumo ao serviço Python
 router.post("/", async (req: Request, res: Response) => {
   try {
@@ -37,13 +28,13 @@ router.post("/", async (req: Request, res: Response) => {
     try {
       // Solicita o resumo ao serviço Python
       const pythonServiceUrl = "http://localhost:5000/summarize";
-      const response = await axios.post<PythonSummaryResponse>(
+      const response = await axios.post(
         pythonServiceUrl,
         { text, lang },
         { timeout: 5000 } // Define um timeout para evitar travamentos
       );
 
-      if (!response.data?.summary) {
+      if (!response.data || !response.data.summary) {
         throw new Error("Erro ao obter o resumo do serviço Python.");
       }
 
@@ -58,16 +49,18 @@ router.post("/", async (req: Request, res: Response) => {
       });
     } catch (pythonError) {
       if (axios.isAxiosError(pythonError)) {
-        const axiosError = pythonError as AxiosError<PythonErrorResponse>;
-        console.error("Erro no serviço Python:", axiosError.response?.data || pythonError.message);
+        console.error("Erro no serviço Python (Axios):", pythonError.message);
+        return res.status(500).json({
+          error: `Erro ao comunicar-se com o serviço Python: ${pythonError.response?.data || pythonError.message}`,
+          task,
+        });
       } else {
-        console.error("Erro inesperado no serviço Python:", (pythonError as Error).message);
+        console.error("Erro desconhecido no serviço Python:", (pythonError as Error).message);
+        return res.status(500).json({
+          error: "Erro desconhecido ao comunicar-se com o serviço Python.",
+          task,
+        });
       }
-
-      return res.status(500).json({
-        error: "Tarefa criada, mas não foi possível gerar o resumo. Tente novamente mais tarde.",
-        task,
-      });
     }
   } catch (error) {
     console.error("Erro ao criar tarefa:", (error as Error).message);
