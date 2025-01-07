@@ -53,21 +53,16 @@ start_python() {
 
         echo "Ativando o ambiente virtual..."
         if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
-            # Ativação para Windows
-            source .venv/Scripts/activate || { echo "Erro ao ativar ambiente virtual no Windows."; exit 1; }
+            .venv/Scripts/python -m pip install --upgrade pip || { echo "Erro ao atualizar pip."; exit 1; }
+            .venv/Scripts/python -m pip install -r requirements.txt || { echo "Erro ao instalar dependências do Python."; exit 1; }
         else
-            # Ativação para Linux/Mac
             source .venv/bin/activate || { echo "Erro ao ativar ambiente virtual no Linux/Mac."; exit 1; }
+            pip install --upgrade pip || { echo "Erro ao atualizar pip."; exit 1; }
+            pip install -r requirements.txt || { echo "Erro ao instalar dependências do Python."; exit 1; }
         fi
 
-        echo "Atualizando pip..."
-        pip install --upgrade pip || { echo "Erro ao atualizar pip."; exit 1; }
-
-        echo "Instalando dependências do Python..."
-        pip install -r requirements.txt || { echo "Erro ao instalar dependências do Python."; exit 1; }
-
         echo "Verificando se o módulo app.main:app existe..."
-        python -c "import app.main" || { echo "Erro: Não foi possível importar app.main. Verifique se o módulo está correto."; exit 1; }
+        .venv/Scripts/python -c "import app.main" || { echo "Erro: Não foi possível importar app.main. Verifique se o módulo está correto."; exit 1; }
 
         echo "Iniciando servidor Python com Uvicorn..."
         .venv/Scripts/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 5000 > "../$LOG_DIR/python.log" 2>&1 &
