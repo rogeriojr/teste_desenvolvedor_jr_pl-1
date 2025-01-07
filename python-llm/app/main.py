@@ -11,8 +11,8 @@ if not load_dotenv(env_path):
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(current_dir, "../app"))
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, Request
+from pydantic import BaseModel, ValidationError
 from services.llm_service import LLMService
 
 app = FastAPI()
@@ -32,17 +32,25 @@ def read_root():
 
 # Endpoint para resumir texto
 @app.post("/summarize")
-async def summarize(data: TextData):
-    text = data.text
-    lang = data.lang
+async def summarize(request: Request):
+    try:
+        # Tenta extrair o corpo da requisição
+        body = await request.json()
+        data = TextData(**body)
+    except ValidationError as ve:
+        # Erro de validação explícita
+        raise HTTPException(status_code=422, detail=ve.errors())
+    except Exception as e:
+        # Erro genérico ao processar o corpo
+        raise HTTPException(status_code=400, detail=f"Erro ao processar o corpo da requisição: {str(e)}")
 
     # Valida se o idioma é suportado
-    if lang not in SUPPORTED_LANGS:
+    if data.lang not in SUPPORTED_LANGS:
         raise HTTPException(status_code=400, detail="Language not supported")
 
     try:
         # Chama o serviço LLM para gerar o resumo
-        summary = llm_service.summarize_text(text, lang)
+        summary = llm_service.summarize_text(data.text, data.lang)
         return {"summary": summary}
     except Exception as e:
         # Trata exceções e retorna mensagem de erro

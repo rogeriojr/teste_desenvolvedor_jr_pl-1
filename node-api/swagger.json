@@ -84,6 +84,40 @@
           }
         }
       }
+    },
+    "/query/create-task": {
+      "get": {
+        "summary": "Cria uma tarefa usando query parameters",
+        "parameters": [
+          {
+            "name": "text",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Texto da tarefa a ser criada"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["pt", "en", "es"]
+            },
+            "description": "Idioma da tarefa (pt, en, ou es)"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Tarefa criada com sucesso"
+          },
+          "400": {
+            "description": "Erro de validação"
+          }
+        }
+      }
     }
   }
 }

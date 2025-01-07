@@ -1,5 +1,6 @@
 import express, { Application } from 'express';
 import tasksRoutes from './routes/tasksRoutes';
+import queryRoutes from './routes/queryRoutes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from '../swagger.json';
 
@@ -16,5 +17,6 @@ app.get('/', (req, res) => {
 
 // Rotas
 app.use('/tasks', tasksRoutes);
+app.use('/query', queryRoutes);
 
 export default app;
