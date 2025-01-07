@@ -1,0 +1,89 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "LLM Summarizer API",
+    "version": "1.0.0",
+    "description": "API para resumo de textos utilizando Node.js e Python"
+  },
+  "paths": {
+    "/tasks": {
+      "post": {
+        "summary": "Cria uma nova tarefa",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": { "type": "string" },
+                  "lang": { "type": "string" }
+                },
+                "required": ["text", "lang"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tarefa criada com sucesso"
+          },
+          "400": {
+            "description": "Erro de validação"
+          }
+        }
+      },
+      "get": {
+        "summary": "Lista todas as tarefas",
+        "responses": {
+          "200": {
+            "description": "Lista de tarefas retornada com sucesso"
+          }
+        }
+      }
+    },
+    "/tasks/{id}": {
+      "get": {
+        "summary": "Obtém uma tarefa específica",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tarefa encontrada"
+          },
+          "404": {
+            "description": "Tarefa não encontrada"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove uma tarefa",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Tarefa removida com sucesso"
+          },
+          "404": {
+            "description": "Tarefa não encontrada"
+          }
+        }
+      }
+    }
+  }
+}
