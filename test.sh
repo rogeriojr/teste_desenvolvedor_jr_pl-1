@@ -24,7 +24,7 @@ test_python_root() {
 
 # Testa criação de uma nova tarefa
 test_create_task() {
-    echo "Testando criação de uma tarefa..." | tee -a "$LOG_FILE"
+    echo "Testando criação de uma tarefa válida..." | tee -a "$LOG_FILE"
     RESPONSE=$(curl -s -w "\nHTTP %{http_code}" -X POST "$NODE_API_URL/tasks" \
         -H "Content-Type: application/json" \
         -d '{"text": "Diagnósticos médicos e decisões jurídicas: o papel da IA", "lang": "pt"}')
@@ -33,6 +33,18 @@ test_create_task() {
     echo "✅ Criar Tarefa - Passou" | tee -a "$LOG_FILE" || \
     echo "❌ Criar Tarefa - Falhou" | tee -a "$LOG_FILE"
     TASK_ID=$(echo "$RESPONSE" | sed -n 's/.*"id":\([0-9]*\).*/\1/p')
+}
+
+# Testa criação de uma tarefa com erro
+test_create_task_invalid() {
+    echo "Testando criação de uma tarefa inválida..." | tee -a "$LOG_FILE"
+    RESPONSE=$(curl -s -w "\nHTTP %{http_code}" -X POST "$NODE_API_URL/tasks" \
+        -H "Content-Type: application/json" \
+        -d '{"lang": "pt"}')
+    echo "Resposta do Node.js (Criar Tarefa Inválida): $RESPONSE" | tee -a "$LOG_FILE"
+    echo "$RESPONSE" | grep -q '"error"' && \
+    echo "✅ Criar Tarefa Inválida - Passou" | tee -a "$LOG_FILE" || \
+    echo "❌ Criar Tarefa Inválida - Falhou" | tee -a "$LOG_FILE"
 }
 
 # Testa obtenção de uma tarefa específica
@@ -77,16 +89,30 @@ test_summarize_python() {
     echo "❌ Geração de Resumo (Python) - Falhou" | tee -a "$LOG_FILE"
 }
 
+# Testa geração de resumo com erro
+test_summarize_python_invalid() {
+    echo "Testando geração de resumo com erro no Python..." | tee -a "$LOG_FILE"
+    RESPONSE=$(curl -s -w "\nHTTP %{http_code}" -X POST "$PYTHON_API_URL/summarize" \
+        -H "Content-Type: application/json" \
+        -d '{"lang": "pt"}')
+    echo "Resposta do Python (Resumo Inválido): $RESPONSE" | tee -a "$LOG_FILE"
+    echo "$RESPONSE" | grep -q '"detail":' && \
+    echo "✅ Geração de Resumo Inválido - Passou" | tee -a "$LOG_FILE" || \
+    echo "❌ Geração de Resumo Inválido - Falhou" | tee -a "$LOG_FILE"
+}
+
 # Executa todos os testes
 run_tests() {
     echo "Executando testes automatizados..." | tee -a "$LOG_FILE"
     test_node_root
     test_python_root
     test_create_task
+    test_create_task_invalid
     test_get_task
     test_list_tasks
     test_delete_task
     test_summarize_python
+    test_summarize_python_invalid
 
     echo "Testes finalizados. Logs salvos em $LOG_FILE"
 }

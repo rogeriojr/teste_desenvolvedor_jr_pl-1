@@ -17,14 +17,22 @@ export class TasksRepository {
   }
 
   private saveTasksToFile(): void {
-    fs.writeFileSync(this.FILE_PATH, JSON.stringify(this.tasks, null, 2));
+    try {
+      fs.writeFileSync(this.FILE_PATH, JSON.stringify(this.tasks, null, 2), "utf-8");
+    } catch (error) {
+      console.error("Erro ao salvar tarefas no arquivo:", error.message || error);
+    }
   }
 
   private loadTasksFromFile(): void {
     if (fs.existsSync(this.FILE_PATH)) {
-      const data = fs.readFileSync(this.FILE_PATH, "utf-8");
-      this.tasks = JSON.parse(data);
-      this.currentId = this.tasks.length > 0 ? Math.max(...this.tasks.map(t => t.id)) + 1 : 1;
+      try {
+        const data = fs.readFileSync(this.FILE_PATH, "utf-8");
+        this.tasks = JSON.parse(data);
+        this.currentId = this.tasks.length > 0 ? Math.max(...this.tasks.map(t => t.id)) + 1 : 1;
+      } catch (error) {
+        console.error("Erro ao carregar tarefas do arquivo:", error.message || error);
+      }
     }
   }
 

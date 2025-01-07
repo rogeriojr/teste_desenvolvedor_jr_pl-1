@@ -28,7 +28,7 @@ class LLMService:
         """
         Recebe um texto e um idioma, e retorna o resumo gerado pelo modelo.
         """
-        prompt = f"Resuma o seguinte texto no idioma {lang}:\n\n{text}"
+        prompt = f"Resuma o seguinte texto no idioma {lang}:\n\n{text}".encode("utf-8").decode("utf-8")
 
         try:
             response = self.llm.invoke(prompt)
