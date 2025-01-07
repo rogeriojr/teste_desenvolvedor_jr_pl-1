@@ -91,32 +91,19 @@ test_delete_task() {
     echo "❌ Remover Tarefa - Falhou" | tee -a "$LOG_FILE"
 }
 
-# Testa o serviço Python para gerar um resumo
-test_summarize_python() {
-    echo "Testando geração de resumo no Python..." | tee -a "$LOG_FILE"
-    RESPONSE=$(curl -s -w "\nHTTP %{http_code}" -X POST "$PYTHON_API_URL/summarize" \
-        -H "Content-Type: application/json" \
-        -d '{"text": "Diagnósticos médicos e decisões jurídicas: o papel da IA", "lang": "pt"}')
-    echo "Resposta do Python (Resumo): $RESPONSE" | tee -a "$LOG_FILE"
-    if echo "$RESPONSE" | grep -q '"summary":'; then
-        echo "✅ Geração de Resumo (Python) - Passou" | tee -a "$LOG_FILE"
-    else
-        echo "❌ Geração de Resumo (Python) - Falhou" | tee -a "$LOG_FILE"
-    fi
-}
-
 # Testa o serviço Python para gerar um resumo válido
 test_summarize_python_valid() {
     echo "Testando geração de resumo válida no Python..." | tee -a "$LOG_FILE"
     RESPONSE=$(curl -s -w "\nHTTP %{http_code}" -X POST "$PYTHON_API_URL/summarize" \
         -H "Content-Type: application/json" \
         -H "User-Agent: insomnia/2023.5.8" \
-        -d '{"lang": "pt", "text": "texto"}') # Inclui campo 'text'
+        -d '{"lang": "pt", "text": "texto"}')
     echo "Resposta do Python (Resumo Válido): $RESPONSE" | tee -a "$LOG_FILE"
-    if echo "$RESPONSE" | grep -q '"summary":'; then
-        echo "❌ Geração de Resumo Válido - Falhou" | tee -a "$LOG_FILE"
-    else
+
+    if echo "$RESPONSE" | grep -q '"summary"'; then
         echo "✅ Geração de Resumo Válido - Passou" | tee -a "$LOG_FILE"
+    else
+        echo "❌ Geração de Resumo Válido - Falhou" | tee -a "$LOG_FILE"
     fi
 }
 
@@ -128,12 +115,14 @@ test_summarize_python_invalid() {
         -H "User-Agent: insomnia/2023.5.8" \
         -d '{"lang": "pt"}')
     echo "Resposta do Python (Resumo Inválido): $RESPONSE" | tee -a "$LOG_FILE"
-    if echo "$RESPONSE" | grep -q '"summary":'; then
-        echo "❌ Geração de Resumo Inválido - Falhou" | tee -a "$LOG_FILE"
-    else
+
+    if echo "$RESPONSE" | grep -q '"detail"'; then
         echo "✅ Geração de Resumo Inválido - Passou" | tee -a "$LOG_FILE"
+    else
+        echo "❌ Geração de Resumo Inválido - Falhou" | tee -a "$LOG_FILE"
     fi
 }
+
 
 
 # Executa todos os testes
