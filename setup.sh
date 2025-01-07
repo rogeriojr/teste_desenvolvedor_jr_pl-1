@@ -16,10 +16,10 @@ start_node() {
         cd "$NODE_API_DIR" || exit
 
         echo "Instalando dependências do Node.js..."
-        npm install || { echo "Erro ao instalar dependências do Node.js."; exit 1; }
+        npm install 2>&1 | tee -a "../$LOG_DIR/node.log" || { echo "Erro ao instalar dependências do Node.js."; exit 1; }
 
         echo "Compilando TypeScript para JavaScript..."
-        npm run build || { echo "Erro ao compilar o projeto Node.js."; exit 1; }
+        npm run build 2>&1 | tee -a "../$LOG_DIR/node.log" || { echo "Erro ao compilar o projeto Node.js."; exit 1; }
 
         echo "Iniciando servidor Node.js..."
         npm run start > "../$LOG_DIR/node.log" 2>&1 &
@@ -42,16 +42,16 @@ start_python() {
         echo "Removendo ambiente virtual anterior, se existir..."
         if [ -d ".venv" ]; then
             if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
-                rmdir /s /q .venv 2> /dev/null
+                rmdir /s /q .venv 2> /dev/null || echo "Aviso: Não foi possível remover .venv existente."
             else
-                rm -rf .venv
+                rm -rf .venv || echo "Aviso: Não foi possível remover .venv existente."
             fi
         fi
 
         echo "Criando um novo ambiente virtual..."
         python -m venv .venv || { echo "Erro ao criar ambiente virtual."; exit 1; }
 
-        echo "Ativando o ambiente virtual..."
+        echo "Instalando dependências no ambiente virtual..."
         if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
             .venv/Scripts/python -m pip install --upgrade pip || { echo "Erro ao atualizar pip."; exit 1; }
             .venv/Scripts/python -m pip install -r requirements.txt || { echo "Erro ao instalar dependências do Python."; exit 1; }
@@ -62,7 +62,7 @@ start_python() {
         fi
 
         echo "Verificando se o módulo app.main:app existe..."
-        .venv/Scripts/python -c "import app.main" || { echo "Erro: Não foi possível importar app.main. Verifique se o módulo está correto."; exit 1; }
+        .venv/Scripts/python -c "import app.main" 2>&1 | tee -a "../$LOG_DIR/python.log" || { echo "Erro: Não foi possível importar app.main. Verifique se o módulo está correto."; exit 1; }
 
         echo "Iniciando servidor Python com Uvicorn..."
         .venv/Scripts/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 5000 > "../$LOG_DIR/python.log" 2>&1 &
@@ -94,7 +94,6 @@ start_all() {
 
     echo "Ambos os servidores estão rodando."
     echo "Você pode monitorar os logs em $LOG_DIR/node.log e $LOG_DIR/python.log"
-    wait
 }
 
 # Limpa logs e ambientes virtuais
@@ -104,15 +103,29 @@ clean() {
     echo "Limpeza concluída."
 }
 
+# Verifica dependências essenciais
+check_dependencies() {
+    echo "Verificando dependências essenciais..."
+    for cmd in python npm netstat; do
+        if ! command -v $cmd > /dev/null; then
+            echo "Erro: A dependência '$cmd' não está instalada."
+            exit 1
+        fi
+    done
+}
+
 # Verifica o comando passado como argumento
 case $1 in
     start-node)
+        check_dependencies
         start_node
         ;;
     start-python)
+        check_dependencies
         start_python
         ;;
     start-all)
+        check_dependencies
         start_all
         ;;
     clean)

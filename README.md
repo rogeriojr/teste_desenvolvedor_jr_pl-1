@@ -180,6 +180,12 @@ Para facilitar o teste manual dos endpoints, o Swagger foi configurado.
 
 ---
 
+
+## Forçar refresh das portas e terminais se necessário
+4. Inicie a API Node.js e o serviço Python:
+   ```bash
+   ./refresh_shells.sh
+   ```
 ## Conclusão
 
 Todos os requisitos foram implementados, testados e validados com sucesso. O projeto está pronto para ser submetido ao repositório pessoal. 🚀
