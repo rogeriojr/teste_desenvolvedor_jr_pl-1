@@ -35,8 +35,12 @@ router.get("/create-task", (req: Request, res: Response) => {
         lang, // Inclui a linguagem na resposta
       },
     });
-  } catch (error: unknown) {
-    console.error("Erro ao criar tarefa:", (error as Error).message);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Erro ao criar tarefa:", error.message);
+    } else {
+      console.error("Erro desconhecido ao criar tarefa.");
+    }
     return res.status(500).json({ error: "Erro ao criar a tarefa." });
   }
 });

@@ -22,8 +22,12 @@ export class TasksRepository {
   private saveTasksToFile(): void {
     try {
       fs.writeFileSync(this.FILE_PATH, JSON.stringify(this.tasks, null, 2), 'utf8');
-    } catch (error: unknown) {
-      console.error("Erro ao salvar tarefas no arquivo:", (error as Error).message);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Erro ao salvar tarefas no arquivo:", error.message);
+      } else {
+        console.error("Erro desconhecido ao salvar tarefas no arquivo.");
+      }
     }
   }
 
@@ -46,11 +50,14 @@ export class TasksRepository {
           console.warn("O conteúdo do arquivo não é uma lista válida de tarefas. Inicializando vazio.");
           this.tasks = [];
         }
-      } catch (error: unknown) {
-        console.error(
-          "Erro ao carregar tarefas do arquivo. Certifique-se de que o arquivo está no formato JSON válido:",
-          (error as Error).message
-        );
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          console.error("Erro de sintaxe ao carregar o JSON das tarefas:", error.message);
+        } else if (error instanceof Error) {
+          console.error("Erro ao carregar tarefas do arquivo:", error.message);
+        } else {
+          console.error("Erro desconhecido ao carregar tarefas do arquivo.");
+        }
         this.tasks = [];
       }
     }
